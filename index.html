@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wizard by Pearson | Matrículas Abertas - Conexão Global</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-red: #E30613;
+            --dark-blue: #0A192F;
+            --text-dark: #2D3748;
+            --text-light: #F7FAFC;
+            --gray-bg: #F4F6F8;
+            --card-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: var(--gray-bg);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        /* Header & Navigation */
+        header {
+            background: #ffffff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--primary-red);
+            text-decoration: none;
+            letter-spacing: -1px;
+        }
+
+        .logo span {
+            color: var(--dark-blue);
+            font-size: 1rem;
+            font-weight: 400;
+            margin-left: 5px;
+        }
+
+        .badge-status {
+            background-color: #E6FFFA;
+            color: #234E52;
+            border: 1px solid #38B2AC;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #38B2AC;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, var(--dark-blue) 0%, #172a45 100%);
+            color: var(--text-light);
+            padding: 4rem 2rem;
+        }
+
+        .hero-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 3rem;
+            align-items: center;
+        }
+
+        .hero-content h1 {
+            font-size: 2.8rem;
+            line-height: 1.2;
+            font-weight: 800;
+            margin-bottom: 1.2rem;
+        }
+
+        .hero-content h1 span {
+            color: var(--primary-red);
+        }
+
+        .hero-content p {
+            font-size: 1.1rem;
+            color: #CBD5E0;
+            margin-bottom: 2rem;
+        }
+
+        .features-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .features-list li {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.95rem;
+        }
+
+        .features-list li span {
+            color: #48BB78;
+            font-weight: bold;
+        }
+
+        /* Lead Form Card */
+        .form-card {
+            background: #ffffff;
+            color: var(--text-dark);
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .form-card h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--dark-blue);
+        }
+
+        .form-card p {
+            font-size: 0.85rem;
+            color: #718096;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.4rem;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #E2E8F0;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--primary-red);
+        }
+
+        .btn-submit {
+            width: 100%;
+            background-color: var(--primary-red);
+            color: #ffffff;
+            border: none;
+            padding: 0.9rem;
+            font-size: 1rem;
+            font-weight: 700;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+
+        .btn-submit:hover {
+            background-color: #b8050f;
+        }
+
+        .btn-submit:active {
+            transform: scale(0.99);
+        }
+
+
+        /* Success Message Alert */
+        #success-alert {
+            display: none;
+            background-color: #C6F6D5;
+            color: #22543D;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            font-size: 0.85rem;
+            text-align: center;
+        }
+
+        /* Footer */
+        footer {
+            background-color: #ffffff;
+            border-top: 1px solid #E2E8F0;
+            padding: 2rem;
+            text-align: center;
+            font-size: 0.8rem;
+            color: #A0AEC0;
+            margin-top: 4rem;
+        }
+
+        @media (max-width: 900px) {
+            .hero-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="navbar">
+            <a href="#" class="logo">WIZARD <span>by Pearson</span></a>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="hero-container">
+            <div class="hero-content">
+                <h1>Fale inglês de verdade com a <span>Wizard</span>.</h1>
+                <p>Garanta condições exclusivas de matrícula com atendimento contínuo e experiência digital sem interrupções.</p>
+                <ul class="features-list">
+                    <li><span>✓</span> Metodologia focada em conversação rápida</li>
+                    <li><span>✓</span> Acesso ao app Wiz.me para prática 24/7</li>
+                    <li><span>✓</span> Certificação e suporte global Pearson</li>
+                </ul>
+            </div>
+
+            <div class="form-card">
+                <h2>Garanta sua Bolsa</h2>
+                <p>Preencha os campos para receber o contato do consultor da unidade mais próxima.</p>
+                
+                <div id="success-alert">✓ Inscrição enviada com sucesso! Em breve entraremos em contato.</div>
+
+                <form id="leadForm">
+                    <div class="form-group">
+                        <label for="name">Nome Completo</label>
+                        <input type="text" id="name" placeholder="Ex: Maria Silva" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">E-mail</label>
+                        <input type="email" id="email" placeholder="maria@email.com" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone">WhatsApp / Telefone</label>
+                        <input type="tel" id="phone" placeholder="(11) 99999-9999" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="course">Idioma de Interesse</label>
+                        <select id="course" required>
+                            <option value="">Selecione o idioma...</option>
+                            <option value="ingles">Inglês</option>
+                            <option value="espanhol">Espanhol</option>
+                            <option value="frances">Francês</option>
+                            <option value="alemao">Alemão</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn-submit">Quero Minha Bolsa Exclusiva</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <section class="metrics-section">
+  
+
+    <footer>
+        <p>&copy; 2026 Wizard by Pearson. Todos os direitos reservados. | Projeto Hackathon Future Builders - Grupo 5</p>
+    </footer>
+
+    <script>
+        const LEADS_API_URL = 'COLE_AQUI_A_URL_DO_OUTPUT_API_INVOKE_URL/leads';
+
+        document.getElementById('leadForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const btn = document.querySelector('.btn-submit');
+            const successAlert = document.getElementById('success-alert');
+            btn.innerText = 'Enviando...';
+            btn.disabled = true;
+
+            const payload = {
+                name: document.getElementById('name').value.trim(),
+                email: document.getElementById('email').value.trim(),
+                phone: document.getElementById('phone').value.trim(),
+                course: document.getElementById('course').value
+            };
+
+            try {
+                const response = await fetch(LEADS_API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error('Falha ao enviar formulário');
+                }
+
+                successAlert.innerText = 'Inscrição enviada com sucesso! Em breve entraremos em contato.';
+                successAlert.style.display = 'block';
+                btn.innerText = 'Bolsa Garantida!';
+                btn.style.backgroundColor = '#38A169';
+                this.reset();
+            } catch (error) {
+                successAlert.innerText = 'Não foi possível enviar agora. Tente novamente.';
+                successAlert.style.display = 'block';
+                btn.innerText = 'Tentar novamente';
+                btn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
