@@ -14,18 +14,6 @@ LAMBDA_FUNCTIONS = {
         "src_dir": os.path.join("src", "lambdas", "shopping_list", "add_item"),
         "dist_file": "lead_capture.zip",
     },
-    "shopping_list_update_item": {
-        "src_dir": os.path.join("src", "lambdas", "shopping_list", "update_item"),
-        "dist_file": "update_item.zip",
-    },
-    "shopping_list_delete_item": {
-        "src_dir": os.path.join("src", "lambdas", "shopping_list", "delete_item"),
-        "dist_file": "delete_item.zip",
-    },
-    "shopping_list_list_items": {
-    "src_dir": os.path.join("src", "lambdas", "shopping_list", "list_items"),
-    "dist_file": "list_items.zip",
-},
 
 }
 

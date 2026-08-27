@@ -2,63 +2,6 @@ provider "aws" {
   region = var.aws_region
 }
 
-# Backend
-
-/* terraform {
-  backend "s3" {
-    bucket         = "meu-terraform-state-bucket-dev"
-    key            = "global/s3/terraform.tfstate"
-    region         = "sa-east-1"
-    dynamodb_table = "terraform-locks-dev"
-    encrypt        = true
-  }
-}
-
-#Bucket para armazenar o tfstate
-resource "aws_s3_bucket" "terraform_state" {
-  bucket = "meu-terraform-state-bucket-dev"
-
-  tags = {
-    Name        = "Terraform State Bucket"
-    Environment = "dev"
-  }
-}
-
-resource "aws_s3_bucket_versioning" "terraform_state" {
-  bucket = aws_s3_bucket.terraform_state.id
-  versioning_configuration {
-    status = "Enabled"
-  }
-}
-
-resource "aws_s3_bucket_server_side_encryption_configuration" "terraform_state" {
-  bucket = aws_s3_bucket.terraform_state.bucket
-
-  rule {
-    apply_server_side_encryption_by_default {
-      sse_algorithm = "AES256"
-    }
-  }
-}
-
-#Tabela DynamoDB para controle de locking
-resource "aws_dynamodb_table" "terraform_locks" {
-  name         = "terraform-locks-dev"
-  billing_mode = "PAY_PER_REQUEST"
-  hash_key     = "LockID"
-
-  attribute {
-    name = "LockID"
-    type = "S"
-  }
-
-  tags = {
-    Name        = "Terraform Locks Table"
-    Environment = "dev"
-  }
-} */
-
-
 module "dynamodb" {
   source = "./modules/dynamodb"
 
@@ -103,4 +46,11 @@ module "api_gateway" {
   lambda_leads_arn       = module.lambda_lead_capture.lambda_arn
   lambda_leads_name      = module.lambda_lead_capture.lambda_name
   aws_region             = var.aws_region
+}
+
+module "s3_website" {
+  source        = "./modules/s3_website"
+  bucket_prefix = "wizard-g5-site-${var.aws_region}" 
+  html_filepath = "${path.module}/../index.html"
+  tags          = var.tags
 }
