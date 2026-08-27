@@ -61,27 +61,6 @@
             margin-left: 5px;
         }
 
-        .badge-status {
-            background-color: #E6FFFA;
-            color: #234E52;
-            border: 1px solid #38B2AC;
-            padding: 0.3rem 0.8rem;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            background-color: #38B2AC;
-            border-radius: 50%;
-            display: inline-block;
-        }
-
         /* Hero Section */
         .hero {
             background: linear-gradient(135deg, var(--dark-blue) 0%, #172a45 100%);
@@ -202,17 +181,27 @@
             transform: scale(0.99);
         }
 
-
-        /* Success Message Alert */
-        #success-alert {
+        /* Alerts */
+        .alert-message {
             display: none;
-            background-color: #C6F6D5;
-            color: #22543D;
             padding: 1rem;
             border-radius: 6px;
             margin-bottom: 1rem;
             font-size: 0.85rem;
             text-align: center;
+            font-weight: 500;
+        }
+
+        .alert-success {
+            background-color: #C6F6D5;
+            color: #22543D;
+            border: 1px solid #9AE6B4;
+        }
+
+        .alert-error {
+            background-color: #FED7D7;
+            color: #742A2A;
+            border: 1px solid #FEB2B2;
         }
 
         /* Footer */
@@ -257,7 +246,7 @@
                 <h2>Garanta sua Bolsa</h2>
                 <p>Preencha os campos para receber o contato do consultor da unidade mais próxima.</p>
                 
-                <div id="success-alert">✓ Inscrição enviada com sucesso! Em breve entraremos em contato.</div>
+                <div id="form-alert" class="alert-message"></div>
 
                 <form id="leadForm">
                     <div class="form-group">
@@ -292,22 +281,24 @@
         </div>
     </section>
 
-    <section class="metrics-section">
-  
+    <section class="metrics-section"></section>
 
     <footer>
         <p>&copy; 2026 Wizard by Pearson. Todos os direitos reservados. | Projeto Hackathon Future Builders - Grupo 5</p>
     </footer>
 
     <script>
-        const LEADS_API_URL = 'https://4lrdvn5aya.execute-api.us-east-1.amazonaws.com/prod';
+        const LEADS_API_URL = 'https://4lrdvn5aya.execute-api.us-east-1.amazonaws.com/prod/leads';
 
         document.getElementById('leadForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             const btn = document.querySelector('.btn-submit');
-            const successAlert = document.getElementById('success-alert');
+            const alertBox = document.getElementById('form-alert');
+            
             btn.innerText = 'Enviando...';
             btn.disabled = true;
+            alertBox.style.display = 'none';
+            alertBox.className = 'alert-message';
 
             const payload = {
                 name: document.getElementById('name').value.trim(),
@@ -319,24 +310,32 @@
             try {
                 const response = await fetch(LEADS_API_URL, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json' 
+                    },
                     body: JSON.stringify(payload)
                 });
 
                 if (!response.ok) {
-                    throw new Error('Falha ao enviar formulário');
+                    throw new Error(`Erro na requisição: ${response.status}`);
                 }
 
-                successAlert.innerText = 'Inscrição enviada com sucesso! Em breve entraremos em contato.';
-                successAlert.style.display = 'block';
+                alertBox.innerText = '✓ Inscrição enviada com sucesso! Em breve entraremos em contato.';
+                alertBox.classList.add('alert-success');
+                alertBox.style.display = 'block';
+
                 btn.innerText = 'Bolsa Garantida!';
                 btn.style.backgroundColor = '#38A169';
                 this.reset();
             } catch (error) {
-                successAlert.innerText = 'Não foi possível enviar agora. Tente novamente.';
-                successAlert.style.display = 'block';
+                console.error('Erro no envio do lead:', error);
+                alertBox.innerText = 'Não foi possível enviar agora. Tente novamente.';
+                alertBox.classList.add('alert-error');
+                alertBox.style.display = 'block';
+
                 btn.innerText = 'Tentar novamente';
                 btn.disabled = false;
+                btn.style.backgroundColor = '#E30613';
             }
         });
     </script>
