@@ -1,0 +1,21 @@
+# Arquivos de estado e cache do Terraform
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfstate.backup
+
+# Variáveis locais com credenciais
+*.tfvars
+*.tfvars.json
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Logs e arquivos de crash
+crash.log
+crash.*.log
+
+# Caches do Python (caso tenha Lambdas)
+__pycache__/
+*.py[cod]
