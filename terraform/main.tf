@@ -12,8 +12,8 @@ module "dynamodb" {
 module "iam_lambda" {
   source = "./modules/iam"
 
-  role_name             = var.role_name
-  dynamodb_table_arn    = module.dynamodb.table_arn
+  role_name          = var.role_name
+  dynamodb_table_arn = module.dynamodb.table_arn
 }
 
 module "lambda_hello" {
@@ -39,18 +39,18 @@ module "lambda_lead_capture" {
 }
 
 module "api_gateway" {
-  source                 = "./modules/api_gateway"
-  api_name               = "wizard-leads-api"
-  lambda_hello_arn       = module.lambda_hello.lambda_arn
-  lambda_hello_name      = module.lambda_hello.lambda_name
-  lambda_leads_arn       = module.lambda_lead_capture.lambda_arn
-  lambda_leads_name      = module.lambda_lead_capture.lambda_name
-  aws_region             = var.aws_region
+  source            = "./modules/api_gateway"
+  api_name          = "wizard-leads-api"
+  lambda_hello_arn  = module.lambda_hello.lambda_arn
+  lambda_hello_name = module.lambda_hello.lambda_name
+  lambda_leads_arn  = module.lambda_lead_capture.lambda_arn
+  lambda_leads_name = module.lambda_lead_capture.lambda_name
+  aws_region        = var.aws_region
 }
 
 module "s3_website" {
   source        = "./modules/s3_website"
-  bucket_prefix = "wizard-g5-site-${var.aws_region}" 
+  bucket_prefix = "wizard-g5-site-${var.aws_region}"
   html_filepath = "${path.module}/../index.html"
   tags          = var.tags
 }
