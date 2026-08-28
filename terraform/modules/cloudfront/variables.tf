@@ -18,6 +18,12 @@ variable "failover_bucket_arn" {
   type        = string
 }
 
+variable "web_acl_id" {
+  description = "ARN da Web ACL do WAF"
+  type        = string
+  default     = null
+}
+
 variable "tags" {
   description = "Tags para os recursos"
   type        = map(string)

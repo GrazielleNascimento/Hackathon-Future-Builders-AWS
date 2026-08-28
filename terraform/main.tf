@@ -63,6 +63,7 @@ module "cloudfront" {
   primary_bucket_arn                   = module.s3_website.primary_bucket_arn
   failover_bucket_regional_domain_name = module.s3_website.failover_bucket_regional_domain_name
   failover_bucket_arn                  = module.s3_website.failover_bucket_arn
+  web_acl_id                          = module.waf.web_acl_arn
   tags                                 = var.tags
 }
 
@@ -114,4 +115,12 @@ resource "aws_s3_bucket_policy" "failover_oac" {
       }
     ]
   })
+}
+
+# 1. Módulo WAF + CloudWatch Logs
+module "waf" {
+  source     = "./modules/waf"
+  waf_name   = "wizard-leads-waf"
+  rate_limit = 100
+  tags       = var.tags
 }
