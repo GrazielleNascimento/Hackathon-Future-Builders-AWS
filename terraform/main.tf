@@ -54,3 +54,64 @@ module "s3_website" {
   html_filepath = "${path.module}/../index.html"
   tags          = var.tags
 }
+
+# Módulo CloudFront
+module "cloudfront" {
+  source = "./modules/cloudfront"
+
+  primary_bucket_regional_domain_name  = module.s3_website.primary_bucket_regional_domain_name
+  primary_bucket_arn                   = module.s3_website.primary_bucket_arn
+  failover_bucket_regional_domain_name = module.s3_website.failover_bucket_regional_domain_name
+  failover_bucket_arn                  = module.s3_website.failover_bucket_arn
+  tags                                 = var.tags
+}
+
+# Política no S3 Primário liberando apenas o CloudFront OAC
+resource "aws_s3_bucket_policy" "primary_oac" {
+  bucket = module.s3_website.primary_bucket_id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "AllowCloudFrontServicePrincipalReadOnly"
+        Effect = "Allow"
+        Principal = {
+          Service = "cloudfront.amazonaws.com"
+        }
+        Action   = "s3:GetObject"
+        Resource = "${module.s3_website.primary_bucket_arn}/*"
+        Condition = {
+          StringEquals = {
+            "AWS:SourceArn" = module.cloudfront.cloudfront_arn
+          }
+        }
+      }
+    ]
+  })
+}
+
+# Política no S3 Failover liberando apenas o CloudFront OAC
+resource "aws_s3_bucket_policy" "failover_oac" {
+  bucket = module.s3_website.failover_bucket_id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "AllowCloudFrontServicePrincipalReadOnly"
+        Effect = "Allow"
+        Principal = {
+          Service = "cloudfront.amazonaws.com"
+        }
+        Action   = "s3:GetObject"
+        Resource = "${module.s3_website.failover_bucket_arn}/*"
+        Condition = {
+          StringEquals = {
+            "AWS:SourceArn" = module.cloudfront.cloudfront_arn
+          }
+        }
+      }
+    ]
+  })
+}
