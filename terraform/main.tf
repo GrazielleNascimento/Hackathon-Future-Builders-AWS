@@ -2,6 +2,14 @@ provider "aws" {
   region = var.aws_region
 }
 
+provider "aws" {
+  alias  = "sa_east_1"
+  region = var.aws_region_primary
+}
+
+# ----------------------------------------------------
+# 1. MÓDULOS DE BACKEND SERVERLESS & BANCO
+# ----------------------------------------------------
 module "dynamodb" {
   source = "./modules/dynamodb"
 
@@ -48,14 +56,33 @@ module "api_gateway" {
   aws_region        = var.aws_region
 }
 
-module "s3_website" {
-  source        = "./modules/s3_website"
-  bucket_prefix = "wizard-g5-site-${var.aws_region}"
-  html_filepath = "${path.module}/../index.html"
-  tags          = var.tags
+# ----------------------------------------------------
+# 2. SEGURANÇA NA BORDA (AWS WAF)
+# ----------------------------------------------------
+module "waf" {
+  source     = "./modules/waf"
+  waf_name   = "wizard-leads-waf"
+  rate_limit = 100
+  tags       = var.tags
 }
 
-# Módulo CloudFront
+# ----------------------------------------------------
+# 3. S3 MULTI-REGIÃO (PRIMARY EM SP, FAILOVER NA VIRGÍNIA)
+# ----------------------------------------------------
+module "s3_website" {
+  source        = "./modules/s3_website"
+  bucket_prefix = "wizard-g5-site"
+  html_filepath = "${path.module}/../index.html"
+  tags          = var.tags
+
+  providers = {
+    aws.sa_east_1 = aws.sa_east_1
+  }
+}
+
+# ----------------------------------------------------
+# 4. CDN & DISTRIBUIÇÃO GLOBAL (CLOUDFRONT)
+# ----------------------------------------------------
 module "cloudfront" {
   source = "./modules/cloudfront"
 
@@ -67,9 +94,13 @@ module "cloudfront" {
   tags                                 = var.tags
 }
 
-# Política no S3 Primário liberando apenas o CloudFront OAC
+# ----------------------------------------------------
+# 5. POLÍTICAS DE ACESSO S3 VIA CLOUDFRONT OAC
+# ----------------------------------------------------
+# Política no S3 Primário (São Paulo)
 resource "aws_s3_bucket_policy" "primary_oac" {
-  bucket = module.s3_website.primary_bucket_id
+  provider = aws.sa_east_1
+  bucket   = module.s3_website.primary_bucket_id
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -92,7 +123,7 @@ resource "aws_s3_bucket_policy" "primary_oac" {
   })
 }
 
-# Política no S3 Failover liberando apenas o CloudFront OAC
+# Política no S3 Failover (Virgínia)
 resource "aws_s3_bucket_policy" "failover_oac" {
   bucket = module.s3_website.failover_bucket_id
 
@@ -115,12 +146,4 @@ resource "aws_s3_bucket_policy" "failover_oac" {
       }
     ]
   })
-}
-
-# 1. Módulo WAF + CloudWatch Logs
-module "waf" {
-  source     = "./modules/waf"
-  waf_name   = "wizard-leads-waf"
-  rate_limit = 100
-  tags       = var.tags
 }

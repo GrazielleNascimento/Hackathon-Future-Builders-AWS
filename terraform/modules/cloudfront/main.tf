@@ -12,7 +12,7 @@ resource "aws_cloudfront_distribution" "site" {
   enabled             = true
   is_ipv6_enabled     = true
   default_root_object = "index.html"
-  price_class         = "PriceClass_100"
+  price_class         = "PriceClass_All"
   web_acl_id          = var.web_acl_id
 
   # Origem 1: Bucket Primário

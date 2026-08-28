@@ -4,6 +4,12 @@ variable "aws_region" {
   default     = "us-east-1"
 }
 
+variable "aws_region_primary" {
+  description = "Região primária para o S3 (São Paulo)"
+  type        = string
+  default     = "sa-east-1"
+}
+
 # Role IAM
 variable "role_name" {
   description = "Nome da role IAM para Lambda"
