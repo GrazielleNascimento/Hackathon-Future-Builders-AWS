@@ -9,12 +9,21 @@ import boto3
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
+sqs = boto3.client("sqs")
 dynamodb = boto3.client("dynamodb")
 TABLE_NAME = os.getenv("TABLE_NAME", "shopping_list")
+QUEUE_URL = os.getenv("QUEUE_URL")
 
 
 def lambda_handler(event, context):
     try:
+        if event.get("Records"):
+            for record in event["Records"]:
+                lead = json.loads(record["body"])
+                save_lead(lead)
+                logger.info("Lead processado com sucesso: %s", lead["leadId"])
+            return {"batchItemFailures": []}
+
         body = event.get("body")
         if body and isinstance(body, str):
             body = json.loads(body)
@@ -29,28 +38,42 @@ def lambda_handler(event, context):
         if not all(isinstance(value, str) and value.strip() for value in (name, email, phone, course)):
             return error_response(400, "'name', 'email', 'phone' e 'course' são obrigatórios.")
 
-        lead_id = str(uuid.uuid4())
-        created_at = datetime.utcnow().isoformat() + "Z"
+        if not QUEUE_URL:
+            raise RuntimeError("QUEUE_URL não configurada")
 
-        item = {
-            "PK": {"S": "leads"},
-            "SK": {"S": f"lead#{lead_id}"},
-            "name": {"S": name},
-            "email": {"S": email},
-            "phone": {"S": phone},
-            "course": {"S": course},
-            "createdAt": {"S": created_at},
+        lead = {
+            "leadId": str(uuid.uuid4()),
+            "name": name,
+            "email": email,
+            "phone": phone,
+            "course": course,
+            "createdAt": datetime.utcnow().isoformat() + "Z",
         }
+        sqs.send_message(QueueUrl=QUEUE_URL, MessageBody=json.dumps(lead))
+        logger.info("Lead enfileirado com sucesso: %s", lead["leadId"])
 
-        dynamodb.put_item(TableName=TABLE_NAME, Item=item)
-
-        response = {"success": True, "message": "Lead recebido com sucesso.", "lead": simplify_item(item)}
+        response = {"success": True, "message": "Lead recebido e enfileirado com sucesso.", "lead": lead}
 
         return lambda_response(201, response)
 
     except Exception as e:
         logger.error(f"Erro ao salvar item: {str(e)}")
+        if event.get("Records"):
+            raise
         return error_response(500, "Erro interno ao salvar item.")
+
+
+def save_lead(lead):
+    item = {
+        "PK": {"S": "leads"},
+        "SK": {"S": f"lead#{lead['leadId']}"},
+        "name": {"S": lead["name"]},
+        "email": {"S": lead["email"]},
+        "phone": {"S": lead["phone"]},
+        "course": {"S": lead["course"]},
+        "createdAt": {"S": lead["createdAt"]},
+    }
+    dynamodb.put_item(TableName=TABLE_NAME, Item=item)
 
 
 def simplify_item(item):

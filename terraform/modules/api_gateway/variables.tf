@@ -3,16 +3,6 @@ variable "api_name" {
   type        = string
 }
 
-variable "lambda_hello_arn" {
-  description = "ARN da Lambda hello"
-  type        = string
-}
-
-variable "lambda_hello_name" {
-  description = "Nome da Lambda hello"
-  type        = string
-}
-
 variable "lambda_leads_arn" {
   description = "ARN da Lambda de captura de leads"
   type        = string

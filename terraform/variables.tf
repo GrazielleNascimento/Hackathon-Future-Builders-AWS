@@ -17,25 +17,6 @@ variable "role_name" {
   default     = "my_lambda_role"
 }
 
-# Lambda: hello_terraform
-variable "lambda_hello_name" {
-  description = "Nome da função Lambda hello_terraform"
-  type        = string
-  default     = "hello_terraform_lambda"
-}
-
-variable "lambda_hello_handler" {
-  description = "Handler da função Lambda hello_terraform"
-  type        = string
-  default     = "hello_terraform.lambda_handler"
-}
-
-variable "lambda_hello_zip_path" {
-  description = "Caminho para o arquivo zip da Lambda hello_terraform"
-  type        = string
-  default     = "../dist/hello_terraform_lambda.zip"
-}
-
 # Lambda: captura de leads
 variable "lambda_lead_capture_name" {
   description = "Nome da função Lambda de captura de leads"
@@ -67,6 +48,19 @@ variable "leads_table_name" {
   description = "Nome da tabela DynamoDB"
   type        = string
   default     = "wizard_leads"
+}
+
+# Filas SQS de leads
+variable "leads_queue_name" {
+  description = "Nome da fila principal de leads"
+  type        = string
+  default     = "wizard-lead-queue"
+}
+
+variable "leads_dlq_name" {
+  description = "Nome da DLQ de leads"
+  type        = string
+  default     = "wizard-lead-dlq"
 }
 
 # Tags
