@@ -6,10 +6,6 @@ import sys
 
 # Configurações das funções Lambda
 LAMBDA_FUNCTIONS = {
-    "hello_terraform": {
-        "src_dir": os.path.join("src", "lambdas", "lambda_hello"),
-        "dist_file": "hello_terraform_lambda.zip",
-    },
     "lead_capture": {
         "src_dir": os.path.join("src", "lambdas", "shopping_list", "add_item"),
         "dist_file": "lead_capture.zip",

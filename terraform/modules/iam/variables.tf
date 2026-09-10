@@ -8,3 +8,9 @@ variable "dynamodb_table_arn" {
   description = "ARN da tabela DynamoDB que a Lambda vai acessar"
 }
 
+variable "sqs_queue_arn" {
+  description = "ARN da fila SQS de leads"
+  type        = string
+  default     = ""
+}
+

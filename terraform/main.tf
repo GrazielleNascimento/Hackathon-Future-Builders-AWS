@@ -22,17 +22,7 @@ module "iam_lambda" {
 
   role_name          = var.role_name
   dynamodb_table_arn = module.dynamodb.table_arn
-}
-
-module "lambda_hello" {
-  source = "./modules/lambda"
-
-  function_name = var.lambda_hello_name
-  handler       = var.lambda_hello_handler
-  runtime       = var.lambda_runtime
-  role_arn      = module.iam_lambda.role_arn
-  filename      = var.lambda_hello_zip_path
-  table_name    = module.dynamodb.table_name
+  sqs_queue_arn      = module.leads_queue.queue_arn
 }
 
 module "lambda_lead_capture" {
@@ -44,16 +34,74 @@ module "lambda_lead_capture" {
   role_arn      = module.iam_lambda.role_arn
   filename      = var.lambda_lead_capture_zip_path
   table_name    = module.dynamodb.table_name
+  environment_variables = {
+    QUEUE_URL = module.leads_queue.queue_url
+  }
+}
+
+module "leads_queue" {
+  source = "./modules/sqs"
+
+  queue_name = var.leads_queue_name
+  dlq_name   = var.leads_dlq_name
+  tags       = var.tags
 }
 
 module "api_gateway" {
   source            = "./modules/api_gateway"
   api_name          = "wizard-leads-api"
-  lambda_hello_arn  = module.lambda_hello.lambda_arn
-  lambda_hello_name = module.lambda_hello.lambda_name
   lambda_leads_arn  = module.lambda_lead_capture.lambda_arn
   lambda_leads_name = module.lambda_lead_capture.lambda_name
   aws_region        = var.aws_region
+}
+
+resource "aws_lambda_event_source_mapping" "leads_queue" {
+  event_source_arn = module.leads_queue.queue_arn
+  function_name    = module.lambda_lead_capture.lambda_arn
+  batch_size       = 10
+  enabled          = true
+}
+
+resource "aws_cloudwatch_metric_alarm" "lambda_errors" {
+  alarm_name          = "wizard-lead-lambda-errors"
+  alarm_description   = "Falhas na Lambda de captura ou processamento de leads"
+  namespace           = "AWS/Lambda"
+  metric_name         = "Errors"
+  dimensions          = { FunctionName = var.lambda_lead_capture_name }
+  statistic           = "Sum"
+  period              = 300
+  evaluation_periods  = 1
+  threshold           = 1
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  treat_missing_data  = "notBreaching"
+}
+
+resource "aws_cloudwatch_metric_alarm" "queue_messages" {
+  alarm_name          = "wizard-lead-dlq-messages"
+  alarm_description   = "Existem mensagens aguardando na DLQ de leads"
+  namespace           = "AWS/SQS"
+  metric_name         = "ApproximateNumberOfMessagesVisible"
+  dimensions          = { QueueName = var.leads_dlq_name }
+  statistic           = "Maximum"
+  period              = 300
+  evaluation_periods  = 1
+  threshold           = 0
+  comparison_operator = "GreaterThanThreshold"
+  treat_missing_data  = "notBreaching"
+}
+
+resource "aws_cloudwatch_metric_alarm" "queue_age" {
+  alarm_name          = "wizard-lead-queue-oldest-message"
+  alarm_description   = "Mensagem antiga aguardando processamento na fila de leads"
+  namespace           = "AWS/SQS"
+  metric_name         = "ApproximateAgeOfOldestMessage"
+  dimensions          = { QueueName = var.leads_queue_name }
+  statistic           = "Maximum"
+  period              = 300
+  evaluation_periods  = 1
+  threshold           = 300
+  comparison_operator = "GreaterThanThreshold"
+  treat_missing_data  = "notBreaching"
 }
 
 # ----------------------------------------------------
@@ -90,7 +138,7 @@ module "cloudfront" {
   primary_bucket_arn                   = module.s3_website.primary_bucket_arn
   failover_bucket_regional_domain_name = module.s3_website.failover_bucket_regional_domain_name
   failover_bucket_arn                  = module.s3_website.failover_bucket_arn
-  web_acl_id                          = module.waf.web_acl_arn
+  web_acl_id                           = module.waf.web_acl_arn
   tags                                 = var.tags
 }
 
